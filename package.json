@@ -1,7 +1,7 @@
 {
   "name": "swagger-auto-expand",
-  "version": "1.0.0",
-  "description": "Chrome extension to automatically expand Swagger categories",
+  "version": "0.0.1",
+  "description": "Chrome extension to automatically expand Swagger@2.x categories",
   "scripts": {
     "build": "tsc && npm run copy-manifest",
     "watch": "tsc --watch",
