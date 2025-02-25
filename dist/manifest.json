@@ -1,8 +1,5 @@
 {
   "manifest_version": 3,
-  "name": "Swagger Auto Expand",
-  "version": "1.0",
-  "description": "Automatically expands all Swagger@2.x categories.",
   "permissions": [
     "activeTab"
   ],
@@ -15,5 +12,8 @@
         "content.js"
       ]
     }
-  ]
-} 
+  ],
+  "name": "swagger-auto-expand",
+  "version": "0.0.1",
+  "description": "Chrome extension to automatically expand Swagger@2.x categories"
+}

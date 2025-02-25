@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "description": "Chrome extension to automatically expand Swagger@2.x categories",
   "scripts": {
-    "build": "rollup -c rollup.config.js --configPlugin typescript && npm run copy-manifest",
+    "build": "npm run sync-manifest && rollup -c rollup.config.js --configPlugin typescript && npm run copy-manifest",
     "watch": "rollup -c rollup.config.js --configPlugin typescript -w",
-    "copy-manifest": "copyfiles -f src/manifest.json dist"
+    "copy-manifest": "copyfiles -f src/manifest.json dist",
+    "sync-manifest": "node scripts/sync-manifest.js"
   },
   "devDependencies": {
     "@babel/core": "^7.22.0",
