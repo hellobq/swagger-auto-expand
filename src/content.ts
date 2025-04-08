@@ -1,22 +1,4 @@
-// 定义 Swagger 节点的类型接口
-// 继承自 HTMLElement，确保有 DOM 元素的所有属性和方法
-interface SwaggerSection extends HTMLElement {
-  classList: DOMTokenList
-}
-
-// 全局配置常量
-// 包含所有需要用到的选择器和类名
-const CONFIG = {
-  // Swagger API 分组的容器选择器
-  targetSelector: '.opblock-tag-section',
-  // 展开/折叠按钮的选择器
-  expandButtonSelector: '.opblock-tag',
-  // 展开状态的类名
-  openClassName: 'is-open',
-  // Swagger 内容包装器的类名
-  wrapperClassName: 'wrapper'
-} as const
-
+import { SwaggerSection, CONFIG } from './types'
 
 /**
  * 检查 DOM 元素是否包含指定的类名
@@ -57,21 +39,75 @@ const expandAllSections = (): void => {
   })
 }
 
+/**
+ * 从 URL hash 中获取目标 controller 名称
+ * @returns controller 名称或 null
+ */
+const getTargetControllerFromHash = (): string | null => {
+  const hash = decodeURIComponent(window.location.hash)
+  if (!hash) return null
+  
+  const match = hash.match(/\/([^\/$]+)/)
+  return match ? match[1] : null
+}
+
+/**
+ * 展开指定的 controller 分组
+ * @param targetController - 要展开的 controller 名称
+ * @returns 是否找到并展开了目标 controller
+ */
+const expandTargetSection = (targetController: string): HTMLElement | null => {
+  const sections = querySelectorAllSafe<SwaggerSection>(
+    document,
+    CONFIG.targetSelector
+  )
+  
+  let targetSection: HTMLElement | null = null
+  sections.forEach((section: SwaggerSection): void => {
+    if (!targetSection) {
+      const expandButton = section.querySelector(CONFIG.expandButtonSelector) as HTMLElement
+      if (expandButton.innerText.toLowerCase().includes(targetController)) {
+        targetSection = expandButton
+      }
+    }
+  })
+  
+  return targetSection
+}
+
+/**
+ * 处理展开逻辑
+ * 优先展开 URL hash 中指定的 controller  eg http://192.168.0.1:12345/swagger-ui.html#/缓存配置接口/clearUsingPOST 优先展开 “缓存配置接口”
+ * 如果没有则展开所有分组
+ */
+const handleExpand = (): void => {
+  const targetController = getTargetControllerFromHash()
+  if (targetController) {
+    const targetSection: HTMLElement | null = expandTargetSection(targetController)
+    if (targetSection) {
+      targetSection.click()
+      return
+    }
+  }
+
+  expandAllSections()
+}
+
 // 初始化 MutationObserver
 // 用于监听 DOM 变化，确保在动态加载的内容中也能正常工作
 const observer = new MutationObserver((mutations: MutationRecord[]) => {
   mutations.forEach(mutation => {
     mutation.addedNodes.forEach((node: Node): void => {
-        if (!(node instanceof HTMLElement)) return
+      if (!(node instanceof HTMLElement)) return
       
-        const tagSections = querySelectorAllSafe<SwaggerSection>(
-          node,
-          CONFIG.targetSelector
-        )
+      const tagSections = querySelectorAllSafe<SwaggerSection>(
+        node,
+        CONFIG.targetSelector
+      )
       
-        if (node.className === CONFIG.wrapperClassName && tagSections.length) {
-          expandAllSections()
-        }
+      if (node.className === CONFIG.wrapperClassName && tagSections.length) {
+        handleExpand()
+      }
     })
   })
 })
